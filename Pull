@@ -1,0 +1,30 @@
+podman login: Authenticate with a registry. 
+
+podman pull: Download an image from a registry. 
+
+podman push: Upload an image to a registry. 
+
+podman search: Look for images in a registry.
+
+
+
+podman pull [OPTIONS] NAME[:TAG|@DIGEST]
+
+podman pull ubuntu:latest
+
+
+
+By default, Podman pulls images from the Docker Hub registry. To pull from a different registry, specify the registry's URL:
+
+podman pull quay.io/podman/stable:latest
+
+
+You can pull specific versions of images using tags or digests:
+
+podman pull ubuntu:20.04
+podman pull ubuntu@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2
+
+
+
+To troubleshoot, use the --debug flag with the podman pull command for detailed output.
+

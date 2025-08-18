@@ -13,3 +13,19 @@ podman inspect <container_id_or_name>
 
 
 podman port <container_id_or_name>
+
+
+
+
+1. Using podman ps -q with inspect:
+podman ps -q | xargs -n1 podman inspect -f '{{ .Name }}: {{ .NetworkSettings.IPAddress }}'
+
+This will list each container’s name and IP.
+2. If containers are in a user-defined network (bridge, etc.):
+podman ps -q | xargs -n1 podman inspect -f '{{ .Name }}: {{ range .NetworkSettings.Networks }}{{ .IPAddress }}{{ end }}'
+
+3. If you just want the raw IPs:
+podman ps -q | xargs -n1 podman inspect -f '{{ .NetworkSettings.IPAddress }}'
+
+⚠️ Reminder: if your containers are running with slirp4netns (the default rootless network), .NetworkSettings.IPAddress will usually be empty — you’ll need to check forwarded ports with:
+podman port -a

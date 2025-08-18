@@ -1,0 +1,87 @@
+sudo podman run -it ubuntu bash
+
+Ensure the user has a range of UIDs and GIDs allocated in /etc/subuid and /etc/subgid.
+
+podman run -it ubuntu bash
+
+
+
+
+
+Podman supports multiple storage drivers, each with its own characteristics: 
+
+overlay: The default and recommended driver. It uses a union filesystem to efficiently layer container images. 
+
+vfs: A simple driver that copies entire filesystems. It's slower but works on any filesystem. 
+
+devicemapper: Uses thin provisioning and copy-on-write snapshots. It's being phased out in favor of overlay.
+
+
+
+
+podman info --format '{{.Store.GraphDriverName}}'
+
+
+
+
+
+
+
+Podman stores images and containers in specific locations based on the user mode: 
+
+Root Mode: /var/lib/containers
+
+Rootless Mode: $HOME/.local/share/containers
+
+
+
+
+
+
+storage/: Contains image layers and container filesystems. 
+
+libpod/: Stores container configuration files.
+
+
+podman volume create my_volume
+
+podman run -v my_volume:/data ubuntu
+
+
+podman run -v /host/path:/container/path ubuntu
+
+podman volume prune
+
+
+
+
+
+Podman's storage can be configured through the storage.conf file:
+
+System-wide: /etc/containers/storage.conf 
+
+User-specific: $HOME/.config/containers/storage.conf
+
+
+
+
+
+Key configuration options include:
+
+driver: Set the storage driver. 
+
+graphroot: Specify the root directory for container storage. 
+
+runroot: Set the directory for runtime state.
+
+
+
+
+[storage]
+driver = "overlay"
+graphroot = "/var/lib/containers/storage"
+runroot = "/run/containers/storage"
+
+podman system prune
+
+

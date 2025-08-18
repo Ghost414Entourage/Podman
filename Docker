@@ -1,0 +1,85 @@
+Create a new image from a Dockerfile. 
+
+podman build -t my-custom-image:v1 . 
+
+This command builds an image named "my-custom-image" with the tag "v1" using the Dockerfile in the current directory. 
+
+Push an image to a registry:  Upload a local image to a container registry. 
+
+podman push my-custom-image:v1 docker.io/myusername/my-custom-image:v1 
+
+
+Create and manage pods:  Podman supports pod management similar to Kubernetes. 
+
+# Create a pod
+
+podman pod create --name my-pod
+
+# Run a container in the pod
+
+podman run -d --pod my-pod --name container1 nginx:latest
+
+
+# List pods
+podman pod list
+
+# Inspect a pod
+podman pod inspect my-pod
+
+# Remove a pod and its containers
+podman pod rm -f my-pod
+
+
+
+
+
+
+
+Create a volume
+podman volume create my-data
+
+# List volumes
+podman volume list
+
+# Use a volume in a container
+podman run -d --name my-db -v my-data:/var/lib/mysql mysql:latest
+
+# Remove a volume
+podman volume rm my-data
+
+
+
+
+# Create a network
+podman network create my-network
+
+# List networks
+podman network list
+
+# Run a container on a specific network
+podman run -d --name my-app --network my-network nginx:latest
+
+# Remove a network
+podman network rm my-network
+
+
+
+
+
+
+podman system prune --volumes
+
+
+
+podman generate kube my-nginx > my-nginx-deployment.yaml
+
+
+podman play kube my-nginx-deployment.yaml
+
+podman system prune
+
+
+
+
+
+

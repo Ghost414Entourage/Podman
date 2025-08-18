@@ -1,0 +1,12 @@
+Podman provides native integration with SystemD, allowing you to manage containers as system services. While Podman Compose doesn't directly support this, you can generate SystemD unit files for your Compose services:
+
+podman generate systemd --files --name myapp
+
+
+mv *.service /etc/systemd/system/
+
+
+systemctl enable myapp
+systemctl start myapp
+
+

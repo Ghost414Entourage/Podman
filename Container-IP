@@ -1,0 +1,15 @@
+1. Get just the IP directly:
+podman inspect -f '{{ .NetworkSettings.IPAddress }}' <container_id_or_name>
+
+2. If the container is in a user-defined network:
+podman inspect -f '{{ .NetworkSettings.Networks.bridge.IPAddress }}' <container_id_or_name>
+
+3. For more details (full JSON output):
+
+podman inspect <container_id_or_name>
+
+…and look under .NetworkSettings
+
+
+
+podman port <container_id_or_name>

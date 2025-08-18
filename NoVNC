@@ -1,1 +1,9 @@
 podman pull docker.io/library/ubuntu:24.04
+
+
+podman run -d --name ubuntu-systemd --privileged \
+  -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+  --cgroupns=host \
+  -p 8080:8080 \
+  docker.io/library/ubuntu:24.04 \
+  /sbin/init

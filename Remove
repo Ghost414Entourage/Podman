@@ -1,0 +1,11 @@
+# Stop and remove all containers (running or stopped)
+podman ps -aq | xargs -r podman rm -f
+
+# Remove all images
+podman images -aq | xargs -r podman rmi -f
+
+# Remove all volumes
+podman volume ls -q | xargs -r podman volume rm -f
+
+# Remove all user-defined networks (keeps "podman", "bridge", "host")
+podman network ls --format "{{.Name}}" | grep -v -E '^(podman|bridge|host)$' | xargs -r podman network rm

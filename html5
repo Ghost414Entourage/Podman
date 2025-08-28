@@ -1,0 +1,851 @@
+
+podman pull ubuntu
+
+
+
+podman machine init
+
+podman machine start
+
+podman machine list
+
+podman system connection list
+
+podman machine restart
+
+brew reinstall podman
+
+podman --version
+
+podman run -it ubuntu
+
+
+podman ps
+
+
+podman exec -it <container_id_or_name> bash
+
+podman run -d -p 5900:5900 -p 6080:6080 --name novnc-container novnc-ubuntu
+
+podman run -it -p 5900:5900 -p 6080:6080 ubuntu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+podman run -it -p 5900:5900 -p 6080:6080 --name my_ubuntu_container ubuntu
+
+apt-get update
+apt-get install -y wget gnupg x11vnc xvfb websockify novnc
+
+
+mkdir -p /root/.vnc
+x11vnc -storepasswd 1234 /root/.vnc/passwd
+
+
+Xvfb :1 -screen 0 1024x768x24 &
+x11vnc -display :1 -forever -passwd 1234 &
+
+
+websockify --web=/usr/share/novnc/ 6080 localhost:5900
+
+
+
+
+
+
+
+
+1. LXDE (Lightweight X11 Desktop Environment)
+Pros:
+Lightweight and resource-efficient.
+Good performance in a container environment.
+Installation:
+apt-get install -y lxde
+
+2. Xfce
+Pros:
+Lightweight but more feature-rich compared to LXDE.
+Widely used and has good community support.
+Installation:
+apt-get install -y xfce4
+
+3. MATE
+Pros:
+A bit heavier than LXDE and Xfce but still lightweight.
+More traditional desktop environment with a familiar interface.
+Installation:
+apt-get install -y mate-desktop-environment
+
+4. Openbox
+Pros:
+Minimalistic and highly customizable window manager.
+Very lightweight, suitable if you just need a basic environment.
+Installation:
+
+apt-get install -y openbox
+
+
+Steps to Set Up a Desktop Environment in a Container
+Here’s a general procedure to install a desktop environment and set up a VNC server in your Ubuntu container:
+Start an Interactive Container
+
+podman run -it --name my_ubuntu_container -p 5900:5900 -p 6080:6080 ubuntu
+
+
+Install and Configure VNC Server
+
+apt-get install -y x11vnc xvfb
+
+Create a VNC password:
+
+
+mkdir -p /root/.vnc
+x11vnc -storepasswd 1234 /root/.vnc/passwd
+
+
+Install and Start noVNC
+
+
+apt-get install -y novnc websockify
+
+Start Xvfb and x11vnc:
+
+
+Xvfb :1 -screen 0 1024x768x24 &
+x11vnc -display :1 -forever -passwd 1234 &
+
+Start websockify to serve noVNC:
+
+websockify --web=/usr/share/novnc/ 6080 localhost:5900
+
+
+Start the Desktop Environment
+For LXDE:
+
+
+
+startlxde &
+
+For Xfce:
+
+
+
+startxfce4 &
+
+For MATE:
+
+
+mate-session &
+
+For Openbox:
+
+openbox-session &
+
+Accessing the Desktop Environment
+Once the container is running and configured, you can access the desktop environment through noVNC by navigating to:
+http://localhost:6080
+
+
+
+
+
+1. Verify Xvfb Is Running
+First, ensure that Xvfb is running and listening on the correct display:
+ps aux | grep Xvfb
+
+You should see a process similar to Xvfb :1 -screen 0 1024x768x24.
+If it’s not running, restart Xvfb:
+
+Xvfb :1 -screen 0 1024x768x24 &
+
+2. Check DISPLAY Variable
+Make sure that the DISPLAY environment variable is set correctly to point to the X server:
+export DISPLAY=:1
+
+This tells x11vnc where to find the X server.
+3. Restart x11vnc
+Now that Xvfb is running and the DISPLAY variable is set, try restarting x11vnc:
+x11vnc -display :1 -forever -passwd 1234
+
+4. Run websockify
+After x11vnc starts successfully, you can run websockify:
+websockify --web=/usr/share/novnc/ 6080 localhost:5900
+
+5. Verify VNC Access
+Open your web browser and navigate to:
+http://localhost:6080
+
+1. Verify Xvfb is Properly Running
+Ensure that Xvfb is indeed running and using the expected display number. You have confirmed it's running on display :1, which is good.
+2. Ensure DISPLAY Variable is Set Correctly
+You already set the DISPLAY variable to :1, which is correct. Make sure this is exported properly in your environment:
+export DISPLAY=:1
+
+You can verify it by running:
+echo $DISPLAY
+
+It should output :1.
+3. Start x11vnc with Additional Options
+Sometimes x11vnc needs extra options to handle certain configurations. Try starting x11vnc with the -auth option to specify the Xauthority file:
+
+x11vnc -display :1 -forever -passwd 1234 -auth /var/run/lightdm/root/:1
+
+If that doesn’t work, try without the -auth option:
+x11vnc -display :1 -forever -passwd 1234
+
+4. Check for Errors
+If x11vnc fails to start, check if there are any specific error messages. You can redirect error messages to a log file for better inspection:
+
+x11vnc -display :1 -forever -passwd 1234 > /tmp/x11vnc.log 2>&1
+
+Check /tmp/x11vnc.log for detailed error messages.
+5. Verify noVNC and WebSocket Configuration
+Make sure websockify is correctly set up to proxy WebSocket connections to x11vnc. Start websockify and ensure it’s running correctly:
+websockify --web=/usr/share/novnc/ 6080 localhost:5900
+
+You should see a message indicating that websockify is listening on port 6080.
+6. Access noVNC
+Ensure your browser is pointing to the correct URL to access noVNC:
+
+http://localhost:6080
+
+Example Commands
+Here’s a step-by-step sequence to try:
+
+# Start Xvfb
+Xvfb :1 -screen 0 1024x768x24 &
+
+# Set DISPLAY variable
+export DISPLAY=:1
+
+# Start x11vnc
+x11vnc -display :1 -forever -passwd 1234 &
+
+# Start websockify
+websockify --web=/usr/share/novnc/ 6080 localhost:5900 &
+
+Next Steps
+Check websockify Status
+Ensure websockify is running and proxying correctly. Run websockify in a new terminal if needed:
+websockify --web=/usr/share/novnc/ 6080 localhost:5900
+
+Verify that websockify is active and listening on port 6080. You should see similar startup messages indicating it's proxying from port 6080 to port 5900.
+Access noVNC
+Open your web browser and navigate to:
+
+http://localhost:6080
+
+Additional Debugging
+Restart Services
+Sometimes restarting x11vnc and websockify can resolve temporary issues. Restart both services:
+
+# Kill any running x11vnc and websockify processes
+
+pkill x11vnc
+pkill websockify
+
+# Restart Xvfb
+
+Xvfb :1 -screen 0 1024x768x24 &
+
+# Set DISPLAY variable
+
+export DISPLAY=:1
+
+# Start x11vnc
+
+x11vnc -display :1 -forever -passwd 1234 &
+
+# Start websockify
+
+websockify --web=/usr/share/novnc/ 6080 localhost:5900 &
+
+Verify VNC Server
+Use a VNC client to connect directly to the VNC server without noVNC. This helps verify that the VNC server is functional:
+
+vncviewer localhost:5900
+
+If the VNC viewer connects successfully, it confirms that x11vnc is working.
+Check NoVNC Configuration
+Make sure noVNC is properly installed and configured. The web root path /usr/share/novnc/ should contain the necessary noVNC files. Ensure noVNC has the correct HTML and JavaScript files to display the VNC session.
+Logs and Errors
+Check logs or error messages for more information. Look into:
+websockify logs
+x11vnc logs
+Docker or Podman container logs for any potential issues
+Troubleshooting and Resolution
+1. Verify noVNC Directory
+Ensure that the noVNC directory contains the correct files and is not missing crucial files like vnc.html. Based on your directory listing, it seems to have the necessary files, but it’s worth confirming that they are correctly placed.
+Check if the vnc.html file is accessible directly in your browser:
+bash
+
+http://localhost:6080/vnc.html
+
+If this URL does not load the noVNC interface properly, it might indicate that noVNC is not correctly set up or the websockify configuration is incorrect.
+2. Check Websockify Configuration
+Make sure that websockify is configured to serve the noVNC web directory correctly. The command should be:
+websockify --web=/usr/share/novnc/ 6080 localhost:5900
+Ensure that /usr/share/novnc/ is the correct path to your noVNC directory. If it’s a different path, adjust accordingly.
+3. Ensure NoVNC Files Are Correct
+Verify that vnc.html and other files are correctly placed and have appropriate permissions. The main files vnc.html, vnc_auto.html, and vnc_lite.html should be present in the noVNC directory.
+4. Correct Permissions
+Make sure the web server has permissions to read the noVNC files:
+chmod -R 755 /usr/share/novnc/
+
+5. Serve the Correct Files
+Sometimes noVNC’s main HTML file might not be correctly linked or served. Try pointing your browser to vnc.html directly:
+http://localhost:6080/vnc.html
+
+6. Check Websocket Connectivity
+Ensure that the websocket connection is being correctly established between the noVNC client and the VNC server. Open the developer tools in your browser (usually F12), go to the “Console” tab, and check for any errors related to websocket connections.
+7. Restart Services
+Restart both websockify and x11vnc to ensure that any configuration changes are applied:
+
+# Restart x11vnc
+pkill x11vnc
+x11vnc -display :1 -forever -passwd 1234 &
+
+# Restart websockify
+pkill websockify
+
+websockify --web=/usr/share/novnc/ 6080 localhost:5900 &
+
+
+
+Here’s a step-by-step guide to troubleshoot and resolve this issue:
+Check Environment Variable: Ensure that the USER environment variable is set. You can check its value by running:
+
+echo $USER
+If it’s not set, you can set it manually:
+
+export USER=$(whoami)
+Set Environment Variable Temporarily: If the USER variable is not set or not persistent, you can set it temporarily for the session:
+bash
+
+export USER=root
+Verify Environment Variables: You may also want to check other related environment variables that might be missing or incorrectly set:
+
+echo $HOME
+echo $SHELL
+echo $PATH
+
+Reconfigure VNC Server: After setting the environment variable, try starting or killing the VNC server again:
+
+vncserver :1
+vncserver -kill :1
+
+
+#!/bin/sh
+xrdb $HOME/.Xresources
+xsetroot -solid grey
+startxfce4 &
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1. Check Installed Desktop Environments
+You can check which desktop environments are installed by looking for their packages. Here’s how to check for the presence of the packages for the most common desktop environments:
+Check for Xfce
+dpkg -l | grep xfce4
+
+Check for GNOME
+dpkg -l | grep gnome
+
+Check for KDE Plasma
+dpkg -l | grep plasma
+
+Check for LXDE
+dpkg -l | grep lxde
+
+If these commands return output, the corresponding desktop environment is installed.
+2. Install Desktop Environments
+If a desktop environment is not installed, you can install it using apt-get. Here are the commands for each environment:
+Install Xfce
+sudo apt-get update
+sudo apt-get install xfce4 xfce4-goodies
+
+Install GNOME
+sudo apt-get update
+sudo apt-get install gnome-session gnome-terminal
+
+Install KDE Plasma
+sudo apt-get update
+sudo apt-get install kde-plasma-desktop
+
+Install LXDE
+sudo apt-get update
+sudo apt-get install lxde
+
+3. Switch Between Desktop Environments
+When you have multiple desktop environments installed, you can choose which one to use at the login screen. Most display managers (like lightdm, gdm, sddm) allow you to select your desktop environment from a dropdown menu on the login screen.
+To Switch Desktop Environments in VNC
+Update your xstartup script to start the desired desktop environment:
+Open or Create the xstartup Script
+
+nano ~/.vnc/xstartup
+
+Xfce
+
+#!/bin/sh
+xrdb $HOME/.Xresources
+startxfce4 &
+
+GNOME
+
+#!/bin/sh
+xrdb $HOME/.Xresources
+gnome-session &
+KDE Plasma
+
+#!/bin/sh
+xrdb $HOME/.Xresources
+startkde &
+
+LXDE
+
+#!/bin/sh
+xrdb $HOME/.Xresources
+startlxde &
+
+Make the xstartup Script Executable
+
+chmod +x ~/.vnc/xstartup
+
+Restart the VNC Server
+
+
+vncserver -kill :1
+vncserver :1
+
+4. Verify Which Desktop Environment Is Running
+After you start your VNC server, you can verify which desktop environment is running by checking the environment variables or looking at the desktop:
+Check Environment Variables
+
+echo $XDG_CURRENT_DESKTOP
+
+podman start my_ubuntu_container
+
+podman exec -it my_ubuntu_container /bin/bash
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1. docker
+The docker command-line tool is used to interact with Docker’s core features, such as managing containers, images, networks, and volumes. Basic commands include:
+Run a container:
+
+docker run <options> <image>
+
+List running containers:
+
+docker ps
+Stop a container:
+
+docker stop <container-id>
+
+Remove a container:
+
+docker rm <container-id>
+
+2. docker-buildx
+docker-buildx is a Docker CLI plugin for extended build capabilities with BuildKit. It allows for building images with advanced features like multi-platform builds and cache import/export.
+Create a new buildx builder instance:
+
+docker buildx create --name mybuilder
+Use a specific buildx instance:
+
+docker buildx use mybuilder
+Build an image:
+
+docker buildx build <options> <path>
+3. docker-clean
+docker-clean isn’t a standard Docker command or tool but usually refers to scripts or utilities created to clean up unused Docker resources like dangling images, stopped containers, and unused networks.
+Clean up dangling images:
+docker image prune
+Clean up unused containers, networks, images, and build cache:
+docker system prune
+4. docker-completion
+docker-completion refers to shell completion scripts that provide tab-completion for Docker commands in the terminal, making it easier to use Docker commands.
+For bash completion:
+
+source /usr/share/bash-completion/completions/docker
+For zsh completion:
+
+source /usr/share/zsh/site-functions/_docker
+5. docker-compose
+docker-compose is a tool for defining and running multi-container Docker applications. You define your application’s services, networks, and volumes in a docker-compose.yml file.
+Start services defined in docker-compose.yml:
+
+docker-compose up
+Stop and remove containers defined in docker-compose.yml:
+
+docker-compose down
+Build or rebuild services:
+
+docker-compose build
+Podman Equivalents
+If you are using Podman and want equivalent functionality:
+Podman for Docker Commands:
+Run a container: podman run
+List containers: podman ps
+Stop a container: podman stop
+Remove a container: podman rm
+Build an image: podman build
+Podman for Docker-Compose: Podman can run docker-compose files using the podman-compose tool.
+Start services: podman-compose up
+Stop and remove services: podman-compose down
+Example Commands
+Here’s how you might use some of these commands:
+Docker:
+docker run -d --name mycontainer ubuntu
+docker ps
+docker stop mycontainer
+docker rm mycontainer
+docker image prune
+docker-compose up
+
+Podman:
+bash
+Copy code
+podman run -d --name mycontainer ubuntu
+podman ps
+podman stop mycontainer
+podman rm mycontainer
+podman image prune
+podman-compose up
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+podman network ls -q
+
+podman network ls -q | xargs -r podman network rm
+
+podman network ls --format "{{.Name}}" | grep -v '^podman$'
+
+podman network ls --format "{{.Name}}" | grep -v '^podman$' | xargs -r podman network rm
+
+podman machine init
+podman machine start
+
+podman pull ubi9-init
+podman create --rm --name SystemD -ti --systemd=always ubi9-init sh
+podman inspect SystemD --format '{{ .Config.StopSignal}}'
+podman start --attach SystemD
+
+
+podman create --rm --name SystemD -ti --systemd=always ubuntu:latest bash
+
+podman inspect SystemD --format '{{ .Config.StopSignal }}'
+
+podman start --attach SystemD
+
+
+
+
+
+
+
+
+nano my_custom_ubuntu 
+# Use Ubuntu as base image
+FROM ubuntu:latest
+# Set the stop signal
+STOPSIGNAL SIGRTMIN+37
+# Install necessary packages (including systemd if needed)
+RUN apt-get update && apt-get install -y systemd
+
+podman build -t my_custom_ubuntu .
+podman create --rm --name SystemD -ti --systemd=always my_custom_ubuntu bash
+podman start --attach SystemD
+
+
+nano /Users/caspermedved/downloads/Dockerfile
+
+# Use a base image
+FROM ubuntu:latest
+# Install systemd and other necessary packages
+RUN apt-get update && \
+    apt-get install -y systemd systemd-sysv && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+# Create necessary directories for systemd
+RUN mkdir -p /run /run/lock /sys/fs/cgroup
+# Set the default command to systemd
+CMD ["/sbin/init"]
+
+cd /Users/caspermedved/downloads
+podman build -t ubuntu-systemd .
+
+podman run --rm -it --privileged \
+    --tmpfs /run --tmpfs /run/lock --tmpfs /sys/fs/cgroup \
+    ubuntu-systemd
+
+
+podman run --rm -it --privileged \
+    --tmpfs /run --tmpfs /run/lock --tmpfs /sys/fs/cgroup \
+    --user root \
+    ubuntu-systemd
+
+nano /Users/caspermedved/downloads/Dockerfile
+FROM ubuntu:latest
+# Install systemd and other necessary packages
+RUN apt-get update && \
+    apt-get install -y systemd systemd-sysv sudo && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+# Create necessary directories for systemd
+RUN mkdir -p /run /run/lock /sys/fs/cgroup
+# Create a user and set a password
+RUN useradd -m -s /bin/bash myuser && \
+    echo 'myuser:password' | chpasswd && \
+    adduser myuser sudo
+# Switch to the new user
+USER myuser
+# Set the default command to systemd
+CMD ["/sbin/init"]
+
+podman build -t ubuntu-systemd .
+podman run --rm -it --privileged \
+    --tmpfs /run --tmpfs /run/lock --tmpfs /sys/fs/cgroup \
+    ubuntu-systemd
+
+login: myuser
+password: password
+
+
+podman network create --subnet 192.168.100.0/24 --gateway 192.168.100.1 --route 10.1.0.0/24,192.168.100.12 newnet
+podman network create --subnet 192.168.100.0/24 --gateway 192.168.100.1 newnet
+
+podman network ls -q | xargs -I {} podman network rm {}
+
+podman network ls
+
+podman network inspect newnet
+
+
+
+Certainly! The podman network create command you’ve provided sets up a new network with specific configurations. Here's a detailed explanation of each part of the command:
+Command Breakdown
+
+podman network create --subnet 192.168.100.0/24 --gateway 192.168.100.1 --route 10.1.0.0/24,192.168.100.12 newnet
+
+1. podman network create
+Purpose: This command is used to create a new network in podman.
+2. --subnet 192.168.100.0/24
+Purpose: Specifies the IP address range for the new network.
+Details: 192.168.100.0/24 is a subnet in CIDR (Classless Inter-Domain Routing) notation:
+192.168.100.0 is the network address.
+/24 indicates that the subnet mask is 255.255.255.0, which means there are 256 addresses in total (from 192.168.100.0 to 192.168.100.255).
+3. --gateway 192.168.100.1
+Purpose: Defines the gateway IP address for the network.
+Details: 192.168.100.1 will be used as the gateway address for containers in this network. This is the IP address that containers use to communicate with external networks, if they need to.
+4. --route 10.1.0.0/24,192.168.100.12
+Purpose: Adds a static route to the network configuration.
+Details: This creates a route that directs traffic destined for the 10.1.0.0/24 network through the gateway 192.168.100.12.
+10.1.0.0/24 is the destination network for the route.
+192.168.100.12 is the next hop (gateway) to reach the 10.1.0.0/24 network.
+5. newnet
+Purpose: Specifies the name of the new network.
+Details: newnet is the name given to the network being created. This name is used to reference the network in subsequent podman commands.
+What This Command Does
+Creates a Network: It sets up a new virtual network named newnet with an IP range of 192.168.100.0/24.
+Sets Up Gateway: Configures 192.168.100.1 as the default gateway for this network. Containers attached to this network will use this gateway to communicate outside of their local subnet.
+Configures Static Route: Adds a route to the network configuration so that traffic destined for 10.1.0.0/24 is directed through 192.168.100.12. This is useful if 10.1.0.0/24 is an external network that can be reached via 192.168.100.12.
+Assigns Network Name: Names the network newnet, making it possible to reference this network by name in future podman commands, such as when creating containers.
+Example Use Case
+Let’s say you have containers in newnet that need to communicate with services in the 10.1.0.0/24 network. The static route ensures that traffic destined for 10.1.0.0/24 will be correctly routed through the IP 192.168.100.12, which might be another gateway or a router that can reach that network.
+This setup is useful for scenarios where you need specific routing rules for traffic between different networks or services.
+
+podman pull ubuntu
+podman run -it --name my_ubuntu_container ubuntu
+podman network connect newnet my_ubuntu_container
+
+podman start my_ubuntu_container
+
+podman exec -it my_ubuntu_container /bin/bash
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sudo nano /Library/LaunchDaemons/com.example.sysctl.plist
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.sysctl</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/sbin/sysctl</string>
+        <string>net.inet6.ip6.accept_rtadv=0</string>
+        <string>net.inet6.ip6.forwarding=0</string>
+        <string>net.inet6.ip6.auto_linklocal=0</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
+
+sudo launchctl load /Library/LaunchDaemons/com.example.sysctl.plist
+
+sudo launchctl unload /Library/LaunchDaemons/com.example.sysctl.plist
+
+
+

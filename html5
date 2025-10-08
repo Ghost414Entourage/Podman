@@ -13,7 +13,7 @@ podman system connection list
 
 podman machine restart
 
-brew reinstall podman
+
 
 podman --version
 

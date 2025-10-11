@@ -27,6 +27,11 @@ sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $USER
 
 
 
+
+
+
+
+
 Edit the /etc/containers/storage.conf file to customize storage options, such as the driver or location of container images.
 
 
@@ -61,5 +66,31 @@ source ~/.bashrc
 
 
 
- 
- 
+
+
+
+
+
+
+
+
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+
+
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+
+
+
+
+sudo apt-get install docker-ce    
+
+sudo systemctl start docker 
+
+sudo systemctl enable docker    
+
+docker --version
+

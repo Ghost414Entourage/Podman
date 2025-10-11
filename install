@@ -1,0 +1,65 @@
+sudo apt update
+sudo apt install podman
+
+
+sudo dnf install podman
+
+podman machine init
+podman machine start
+
+
+
+podman --version
+
+
+nano /etc/containers/registries.conf
+
+[registries.search]
+registries = ['docker.io', 'quay.io', 'registry.fedoraproject.org']
+
+
+
+
+sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $USER
+
+
+
+
+
+
+Edit the /etc/containers/storage.conf file to customize storage options, such as the driver or location of container images.
+
+
+
+
+
+sudo dnf install containernetworking-plugins  # For Fedora/RHEL
+sudo apt install containernetworking-plugins  # For Ubuntu/Debian
+
+
+
+
+
+
+
+
+echo "user.max_user_namespaces=28633" | sudo tee -a /etc/sysctl.d/userns.conf
+sudo sysctl -p /etc/sysctl.d/userns.conf
+
+
+
+
+sudo podman completion bash | sudo tee /etc/bash_completion.d/podman
+
+
+
+
+
+echo "alias docker=podman" >> ~/.bashrc
+source ~/.bashrc
+
+
+
+
+ 
+ 
